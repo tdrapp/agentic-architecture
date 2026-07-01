@@ -3,6 +3,14 @@
 All notable changes to this skill. Format follows [Keep a Changelog](https://keepachangelog.com);
 this project uses date-based, human-readable entries.
 
+## [0.3.1] — 2026-07-01
+### Changed
+- `doc_freshness_check.py`: alert only on **claim loss** (actionable). `PAGE-CHANGED` is now
+  informational — dynamic doc pages (SPA/PDF) churn their byte hash without the guidance changing.
+  The summary reports `claim_missing` and `page_changed` separately; the weekly CI opens an issue
+  only on claim loss.
+- Pinned all tracked source hashes (`scripts/sources.json`).
+
 ## [0.3.0] — 2026-07-01
 Proof over prose: runnable artifacts + a self-maintaining check.
 
@@ -20,7 +28,7 @@ Proof over prose: runnable artifacts + a self-maintaining check.
 - SKILL.md points to the runnable example + eval loop.
 
 ## [0.2.0] — 2026-07-01
-Showcase release: cross-vendor grounding, tooling, and packaging.
+Cross-vendor grounding, tooling, and packaging.
 
 ### Added
 - `references/openai-crosscheck.md` — Anthropic↔OpenAI convergence/divergence (handoffs, guardrail

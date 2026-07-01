@@ -77,7 +77,8 @@ def _missing_claims(normalized_page: str, tracked_claims: list[str]) -> list[str
 
 def check_source(source: dict[str, Any]) -> dict[str, Any]:
     """Return a per-source report dict. Status is one of:
-    unchanged | CLAIM-MISSING | PAGE-CHANGED | unpinned | unreachable.
+    unchanged | CLAIM-MISSING (actionable) | PAGE-CHANGED (informational — dynamic pages churn) |
+    unpinned | unreachable.
     """
     name = source.get("name", source.get("url", "<unnamed>"))
     url = source["url"]
@@ -130,15 +131,18 @@ def run_check(path: Path) -> dict[str, Any]:
     else:
         data_quality = "ok"
 
-    drifted = [r for r in reports if r["status"] in ("CLAIM-MISSING", "PAGE-CHANGED")]
+    def n(status: str) -> int:
+        return sum(1 for r in reports if r["status"] == status)
+
     return {
         "mode": "check",
         "summary": {
             "sources": len(sources),
-            "unchanged": sum(1 for r in reports if r["status"] == "unchanged"),
-            "drifted": len(drifted),
-            "unpinned": sum(1 for r in reports if r["status"] == "unpinned"),
-            "unreachable": sum(1 for r in reports if r["status"] == "unreachable"),
+            "unchanged": n("unchanged"),
+            "claim_missing": n("CLAIM-MISSING"),   # actionable drift: a tracked claim disappeared
+            "page_changed": n("PAGE-CHANGED"),     # informational only: many doc pages are dynamic (SPA/PDF), the hash churns
+            "unpinned": n("unpinned"),
+            "unreachable": n("unreachable"),
         },
         "sources": reports,
         "_meta": {"tool": "doc_freshness_check", "checked_at": _now_iso(), "data_quality": data_quality},
