@@ -25,14 +25,16 @@ jobs:
         id: check
         run: |
           python scripts/doc_freshness_check.py --check | tee report.json
-          drift=$(python -c "import json;d=json.load(open('report.json'));print(d['summary']['drifted'])")
-          echo "drift=$drift" >> "$GITHUB_OUTPUT"
-      - name: Open an issue on drift
-        if: steps.check.outputs.drift != '0'
+          # Alert only on claim loss (actionable). PAGE-CHANGED is informational — many doc pages
+          # are dynamic (SPA/PDF) and their byte hash churns without the guidance changing.
+          missing=$(python -c "import json;print(json.load(open('report.json'))['summary']['claim_missing'])")
+          echo "claim_missing=$missing" >> "$GITHUB_OUTPUT"
+      - name: Open an issue when a tracked claim disappears
+        if: steps.check.outputs.claim_missing != '0'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           gh issue create \
-            --title "Doc drift detected — review tracked sources" \
+            --title "Doc drift: a tracked claim is missing — review sources" \
             --body "$(cat report.json)" \
             --label "doc-drift" || true
