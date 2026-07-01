@@ -37,6 +37,16 @@ Source: Anthropic, "Building Effective Agents" (anthropic.com/engineering/buildi
 
 **When NOT to use an agent.** Agents add cost and compounding-error risk. Start with a single optimised LLM call + retrieval + in-context examples; add agentic complexity **only when it demonstrably improves outcomes**. Many production systems are one good workflow, not an autonomous agent.
 
+## Also cross-checked against OpenAI
+
+Where Anthropic and OpenAI independently agree, treat the practice as fundamental (not fashion):
+gate agents against a simpler baseline; **single-agent first, split on measured tool-overload** (not
+raw count — ">15 distinct tools ok, <10 overlapping fail"); a central **orchestrator/manager**;
+**layered guardrails** + **human-in-the-loop on irreversible actions**; **evals-first**. The one real
+divergence to choose consciously: OpenAI makes **handoffs** (peer control transfer) a first-class
+primitive, whereas Anthropic keeps an orchestrator in control. Full table + sources in
+`references/openai-crosscheck.md`.
+
 ## Design checklist (run at project start)
 
 Work top to bottom; stop as soon as a simpler tier solves the problem.
@@ -66,6 +76,40 @@ Read `references/patterns.md` for the full catalog. Each pattern is stated as **
 | Recall without re-reading everything | C6 — Layered persistence / just-in-time memory |
 | Don't optimise in a vacuum | C7 — Pre-flight state read (ground first) |
 | Load only what the moment needs | C8 — Progressive disclosure |
+| Measure that it works + catch regressions | C9 — Evals as a first-class loop |
+| Fuse many workers without regex-parsing prose | C10 — Structured subagent output schemas |
+| Remember across sessions, portably | C11 — Filesystem layers vs the Memory tool API |
+| Defend in layers; gate irreversible actions | C12 — Layered guardrails + human-in-the-loop |
+
+## Tools
+
+`scripts/doc_freshness_check.py` — a zero-dependency script that fetches the primary Anthropic + OpenAI
+docs this skill is grounded in (`scripts/sources.json`) and reports whether the **specific claims** the
+skill relies on are still present. Run it when the user asks whether best practices have evolved, or
+before publishing/citing a mechanism:
+```
+python scripts/doc_freshness_check.py            # report drift (claim-missing / page-changed / unreachable)
+python scripts/doc_freshness_check.py --update    # re-pin hashes after verifying claims
+```
+It dogfoods C4: structured JSON output with a `_meta.data_quality` flag; an unreachable source becomes
+`unavailable`, never a fabricated "unchanged".
+
+## Optional reviewer subagent
+
+`agents/architecture-reviewer.md` is an independent, skeptical reviewer that runs the design checklist
+as a cold pass and argues *against* added complexity (dogfooding C2). Use it to review a proposed
+design — the agent that produced a design should not be the one that blesses it. Usable in Claude Code
+or wired via the Agent SDK `agents=` parameter.
+
+## What this skill is NOT
+
+- **Not general reasoning directives.** "Never invent, say I-don't-know, cite sources" belong in the
+  consuming project's guardrails, not here. This skill assumes them; it doesn't restate them.
+- **Not code quality.** Planning discipline, refactoring, quality gates, git conventions live in
+  `toti-engineering`.
+- **Not a product stack.** Framework/stack specifics live in a stack skill (e.g. `genai-saas`).
+- **Scope = design & structure of agent systems.** How to shape, split, verify, ground, and package
+  them — nothing more.
 
 ## A caution on certainty
 
