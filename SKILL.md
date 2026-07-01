@@ -94,6 +94,10 @@ python scripts/doc_freshness_check.py --update    # re-pin hashes after verifyin
 It dogfoods C4: structured JSON output with a `_meta.data_quality` flag; an unreachable source becomes
 `unavailable`, never a fabricated "unchanged".
 
+Runnable proofs (not just prose): `examples/minimal_agent/run.py` is a zero-dep reference of the
+orchestration shape (orchestrator → workers → independent verifier, C1/C2/C4/C10); `evals/run_evals.py`
+is a real eval loop (pattern C9) over `evals/tasks.json`.
+
 ## Optional reviewer subagent
 
 `agents/architecture-reviewer.md` is an independent, skeptical reviewer that runs the design checklist
