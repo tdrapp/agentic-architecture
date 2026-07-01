@@ -8,6 +8,25 @@ project, generalises well, but not official doctrine).
 
 ---
 
+## Contents
+- **C1** — Subagent context isolation (wide-then-narrow)
+- **C2** — Generation / verification separation
+- **C3** — Filesystem-first dual-mode (CLI ↔ Agent SDK)
+- **C4** — Structured tools + uncertainty flag + no-invention
+- **C5** — Encode discipline as files, not prompts-of-the-moment
+- **C6** — Layered persistence / just-in-time memory
+- **C7** — Pre-flight state read (ground first)
+- **C8** — Progressive disclosure
+- **C9** — Evals as a first-class loop
+- **C10** — Structured subagent output schemas
+- **C11** — Cross-session memory: filesystem layers vs the Memory tool API
+- **C12** — Guardrails as layered defense + human-in-the-loop
+- **Orchestration shape** (composition) · **SDK packaging**
+
+For where Anthropic and OpenAI converge/diverge on these, see `openai-crosscheck.md`.
+
+---
+
 ## C1 — Subagent context isolation (wide-then-narrow)
 
 **What.** When the goal of a search/inventory/audit is a *synthesis you will reason about* (not raw
@@ -158,6 +177,96 @@ Put large reference material behind clear pointers with a table of contents.
 
 ---
 
+## C9 — Evals as a first-class loop
+
+**What.** Build a standing eval set: 20–50 tasks sourced from *real* failures, each with an input and
+a success criterion, scored by a grader (code / model / human). **Grade the outcome, not the step
+sequence** — reward reaching the right result via any valid path. Track `pass@k` (≥1 of k succeeds)
+and, where the behaviour must always hold, `pass^k` (all k succeed). Promote a passing suite into
+ongoing regression testing.
+
+**Why it transfers.** Guardrails and encoded lessons prevent *known* failures; evals are how you
+*measure* whether the system works and catch regressions. Without them, rubric weights and prompt
+tweaks are unfalsifiable. Universal to any agent you intend to run more than once.
+
+**Grounding.** `[verified-doc]` Anthropic, "Demystifying Evals for AI Agents" (tasks/graders/
+transcripts/outcomes; grade outcomes; `pass^k`). `[verified-doc]` OpenAI, "A Practical Guide to
+Building Agents" (evals-first model selection: prototype on the strongest model, downgrade where
+evals still pass).
+
+**Implementation note.** Start from your actual failure cases, not imagined ones. Model-based graders
+scale; keep a few human-graded gold tasks. Store transcripts so a failure is debuggable, not just a
+red cell.
+
+---
+
+## C10 — Structured subagent output schemas
+
+**What.** Subagents return **validated structured output (JSON against a schema)**, not free-form
+prose. The orchestrator consumes fields, not paragraphs; a validator rejects malformed output before
+it reaches synthesis.
+
+**Why it transfers.** Regex-parsing markdown from workers is where multi-agent systems get flaky at
+scale. A schema makes fusion deterministic and makes evals (C9) mechanical — you grade fields, not
+vibes. Any orchestrator-workers system benefits.
+
+**Grounding.** `[verified-doc]` OpenAI Structured Outputs (`strict: true` guarantees arguments match
+your JSON Schema). `[idiomatic]` Anthropic subagent guidance + the evals pattern both favour
+structured, parseable results.
+
+**Implementation note.** Define the schema once; validate at the subagent boundary; on validation
+failure, retry or surface the gap (never let malformed output flow downstream). Keep a free-text
+`notes` field for the nuance the schema can't hold, but decisions ride on the typed fields.
+
+---
+
+## C11 — Cross-session memory: filesystem layers vs the Memory tool API
+
+**What.** Externalise memory, and pick the mechanism deliberately. The **filesystem four-layer model**
+(C6) — live state / immutable records / per-entity learnings / a one-line memory index — is simple,
+auditable, and portable. Anthropic's **Memory tool** (`memory_20250818`) is an API-level client tool
+(view/create/str_replace/insert/delete/rename) for cross-session state in SDK-driven apps; OpenAI
+exposes a **Sessions** primitive. Use the filesystem model when a human reads/edits state and you want
+git-auditable history; adopt the vendor memory API when an autonomous SDK loop needs to manage its own
+context across sessions.
+
+**Why it transfers.** Every long-lived agent needs to recall without re-reading everything. Keeping
+your *state model* (the four roles) separate from the *storage mechanism* (files vs API) means you can
+switch mechanisms without redesigning what you remember.
+
+**Grounding.** `[verified-doc]` Anthropic Memory tool (pin the `memory_20250818` id — schemas drift);
+just-in-time retrieval in "Effective Context Engineering". `[verified-doc]` OpenAI Agents SDK Sessions.
+`[house]` The four-role split (C6) as the portable state model.
+
+**Implementation note.** Whichever mechanism, keep entries specific, timestamped (absolute dates),
+de-duplicated, and updated in place. Treat the vendor API as an adapter over your state model, not as
+the model itself.
+
+---
+
+## C12 — Guardrails as layered defense + human-in-the-loop
+
+**What.** Treat safety as *layers*, not one check: relevance / safety (jailbreak, prompt-injection) /
+PII / moderation filters, **tool safeguards** (rate each tool on read-vs-write, reversibility, and
+blast radius), rules-based limits (length, regex, blocklists), and output validation. Gate any
+**irreversible or high-risk action** (payments, deletes, sends, trades) behind an explicit human
+approval — and behind failure-threshold triggers (too many retries → escalate).
+
+**Why it transfers.** A single guard is brittle; layered defense degrades gracefully. Rating tools by
+reversibility tells you exactly which calls need a human. Universal wherever an agent can act on the
+world.
+
+**Grounding.** `[verified-doc]` OpenAI, "A Practical Guide to Building Agents" (layered guardrails +
+HITL on irreversible/high-risk actions). `[idiomatic]` Converges with Anthropic's transparency +
+stopping-condition guidance. `[house]` "Never auto-execute; the human places the irreversible action"
+is a validated default.
+
+**Implementation note.** Build guardrails from real failures (start with privacy + content safety,
+add layers as incidents occur). Make the human gate structural (the code cannot perform the
+irreversible action without approval), not a polite request in the prompt.
+
+---
+
 ## Orchestration shape (composition)
 
 A robust default that composes the above into one pipeline:
@@ -166,15 +275,19 @@ A robust default that composes the above into one pipeline:
 intake / brief
   → pre-flight state read (C7)
   → routing (which sub-flow)                      [Anthropic: routing]
-  → parallel fan-out of specialised subagents (C1) [Anthropic: parallelization / orchestrator-workers]
-  → synthesis (one agent fuses, invents nothing, C4)
+  → parallel fan-out of specialised subagents (C1, structured JSON outputs C10)
+                                                  [Anthropic: parallelization / orchestrator-workers;
+                                                   OpenAI: manager / agents-as-tools]
+  → synthesis (one agent fuses typed fields, invents nothing, C4)
   → INDEPENDENT verification / red-team (C2)       [Anthropic: evaluator-optimizer]
-  → human decision point (transparency)
-  → log across persistence layers (C6) + encode any new lesson (C5)
+  → human decision point + gate on irreversible actions (C12)
+  → log across persistence layers (C6/C11) + encode any new lesson (C5)
+
+(around the whole loop: an eval set (C9) grades the outcomes and guards against regressions)
 ```
 
 Every stage earns its place against principle 1 (simplicity); cut any that doesn't improve the
-output.
+output. For the manager-vs-handoff topology choice, see `openai-crosscheck.md`.
 
 ---
 
