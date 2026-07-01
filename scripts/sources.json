@@ -10,8 +10,8 @@
         "orchestrator",
         "evaluator"
       ],
-      "page_sha256": null,
-      "last_checked": null
+      "page_sha256": "31727c570509555a5e4ee7e905e8cc448f5c45d435acc46cbc1597812bbbc580",
+      "last_checked": "2026-07-01T16:31:12+00:00"
     },
     {
       "name": "Anthropic — Demystifying Evals for AI Agents",
@@ -21,8 +21,8 @@
         "evals",
         "grader"
       ],
-      "page_sha256": null,
-      "last_checked": null
+      "page_sha256": "447fa977b5e4ac5a641b7c227aa88b6dfafd301f599d52af9e4171d2afec040f",
+      "last_checked": "2026-07-01T16:31:16+00:00"
     },
     {
       "name": "Anthropic — Effective Context Engineering for AI Agents",
@@ -31,8 +31,8 @@
       "tracked_claims": [
         "context"
       ],
-      "page_sha256": null,
-      "last_checked": null
+      "page_sha256": "b242e2067c0956a129218d9be08c244a1aace326177c75f4287fd4e25ea4f05a",
+      "last_checked": "2026-07-01T16:31:21+00:00"
     },
     {
       "name": "Anthropic — Agent Skills docs",
@@ -41,8 +41,8 @@
       "tracked_claims": [
         "skill"
       ],
-      "page_sha256": null,
-      "last_checked": null
+      "page_sha256": "7e2680ab0d49b71a8bb2e12eb6a2dc675e5b0a509d25eeaa67d50d2880ede6ac",
+      "last_checked": "2026-07-01T16:31:24+00:00"
     },
     {
       "name": "Anthropic — Agent SDK overview",
@@ -51,8 +51,8 @@
       "tracked_claims": [
         "setting_sources"
       ],
-      "page_sha256": null,
-      "last_checked": null
+      "page_sha256": "d20f637d612c4ad9e75c090b2abae33696f686d9dbbeac176dc533e120f1d6c5",
+      "last_checked": "2026-07-01T16:31:25+00:00"
     },
     {
       "name": "Anthropic — Memory tool",
@@ -61,16 +61,16 @@
       "tracked_claims": [
         "memory"
       ],
-      "page_sha256": null,
-      "last_checked": null
+      "page_sha256": "e75206dd25a0b54d6f9057c3e1aa7d89cee6b5b218d69eb7afadc9fb22ac0dfa",
+      "last_checked": "2026-07-01T16:31:26+00:00"
     },
     {
       "name": "OpenAI — A Practical Guide to Building Agents (PDF)",
       "url": "https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf",
       "vendor": "openai",
       "tracked_claims": [],
-      "page_sha256": null,
-      "last_checked": null,
+      "page_sha256": "feaf8d41c555b263e07bba9fae2ae6d44b49ac373632397205d63c5bf5a7927b",
+      "last_checked": "2026-07-01T16:31:28+00:00",
       "_note": "PDF: tag-stripping does not apply cleanly; page_sha256 still tracks byte changes. Leave tracked_claims empty or add phrases only after confirming extraction."
     },
     {
@@ -81,8 +81,8 @@
         "handoff",
         "guardrail"
       ],
-      "page_sha256": null,
-      "last_checked": null
+      "page_sha256": "6c9a08a0dae140838e1f03891e82912989ea525fcec3ac353f4efdf2c519d2d3",
+      "last_checked": "2026-07-01T16:31:29+00:00"
     },
     {
       "name": "OpenAI — Function calling",
@@ -91,8 +91,8 @@
       "tracked_claims": [
         "function"
       ],
-      "page_sha256": null,
-      "last_checked": null
+      "page_sha256": "e9efed80bebe90aaaf73471df5850ad30843ee6e1ba21faac55d28c9ccbd4bfb",
+      "last_checked": "2026-07-01T16:31:29+00:00"
     }
   ]
 }
