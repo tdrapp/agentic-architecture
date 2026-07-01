@@ -1,0 +1,35 @@
+{
+  "_comment": "Machine-readable subset of tasks/design-judgment.md. `expect` = substrings a correct answer must contain (keyword grader). `_demo_answer` is a canned correct answer so the harness runs green in CI; replace the responder with a real model to grade live.",
+  "tasks": [
+    {
+      "id": "T1-single-call",
+      "input": "Agent that returns sentiment (positive/negative) for a text blob.",
+      "expect": ["no", "single", "call"],
+      "_demo_answer": "No agent needed — a single LLM call (or classifier) suffices; start simple."
+    },
+    {
+      "id": "T2-tool-overload",
+      "input": "8 overlapping data-fetch tools, agent picks the wrong one. Split into more agents?",
+      "expect": ["consolidat", "tool", "overlap"],
+      "_demo_answer": "Consolidate the overlapping tools first; the problem is tool overlap, not agent count."
+    },
+    {
+      "id": "T3-verifier",
+      "input": "Same agent gathers sources and rates its own confidence.",
+      "expect": ["independent", "verif"],
+      "_demo_answer": "Add an independent verifier (C2); the producer must not certify its own output."
+    },
+    {
+      "id": "T4-tool-honesty",
+      "input": "Tool returns last cached value silently when the API fails.",
+      "expect": ["data_quality", "stale"],
+      "_demo_answer": "Surface a data_quality flag and mark it stale; never silently fall back (C4)."
+    },
+    {
+      "id": "T6-hitl",
+      "input": "Agent should place trades automatically once confident.",
+      "expect": ["human", "irreversible"],
+      "_demo_answer": "Gate the irreversible action behind a human (C12); confidence is not authorization."
+    }
+  ]
+}
