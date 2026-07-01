@@ -3,6 +3,22 @@
 All notable changes to this skill. Format follows [Keep a Changelog](https://keepachangelog.com);
 this project uses date-based, human-readable entries.
 
+## [0.3.0] — 2026-07-01
+Proof over prose: runnable artifacts + a self-maintaining check.
+
+### Added
+- `examples/minimal_agent/run.py` — zero-dep runnable reference of the orchestration shape
+  (orchestrator → workers → independent verifier), with tests.
+- `evals/run_evals.py` + `evals/tasks.json` — a real, runnable eval loop (pluggable responder,
+  keyword grader, `pass^k`), with tests. Practices pattern C9 instead of only describing it.
+- `.github/workflows/doc-freshness.yml` — weekly self-challenge; opens an issue on doc drift
+  (no auto-commit — avoids hiding drift / padding the graph).
+
+### Changed
+- README tightened (keyword-dense, scannable); softened the usage claim to "extracted from a real
+  multi-subagent project — used, not theoretical".
+- SKILL.md points to the runnable example + eval loop.
+
 ## [0.2.0] — 2026-07-01
 Showcase release: cross-vendor grounding, tooling, and packaging.
 
